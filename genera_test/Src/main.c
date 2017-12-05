@@ -90,7 +90,7 @@ static void MX_SAI1_Init(void);
 static void MX_SPI4_Init(void);
 void MX_USB_HOST_Process(void);
 
-#define NUM_ADC_CHANNELS 12
+#define NUM_ADC_CHANNELS 5
 
 __IO uint16_t adcValues[NUM_ADC_CHANNELS];
 uint16_t whichADC = 0;
@@ -226,18 +226,18 @@ static void MX_ADC1_Init(void)
 
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
-  hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ENABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = NUM_ADC_CHANNELS;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
-  hadc1.Init.EOCSelection = DISABLE;
+ hadc1.Instance = ADC1;
+   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+   hadc1.Init.ScanConvMode = ENABLE;
+   hadc1.Init.ContinuousConvMode = ENABLE;
+   hadc1.Init.DiscontinuousConvMode = DISABLE;
+   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+   hadc1.Init.NbrOfConversion = NUM_ADC_CHANNELS;
+   hadc1.Init.DMAContinuousRequests = ENABLE;
+   hadc1.Init.EOCSelection = DISABLE;
 	
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -463,26 +463,26 @@ static void MX_SPI4_Init(void)
   */
 static void MX_DMA_Init(void) 
 {
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA2_CLK_ENABLE();
-  __HAL_RCC_DMA1_CLK_ENABLE();
+	  /* DMA controller clock enable */
+	  __HAL_RCC_DMA2_CLK_ENABLE();
+	  __HAL_RCC_DMA1_CLK_ENABLE();
 
-  /* DMA interrupt init */
-  /* DMA1_Stream2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
-  /* DMA1_Stream4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
-  /* DMA2_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-  /* DMA2_Stream1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
-  /* DMA2_Stream4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream4_IRQn);
+	  /* DMA interrupt init */
+	  /* DMA1_Stream2_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+	  /* DMA1_Stream4_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+	  /* DMA2_Stream0_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+	  /* DMA2_Stream1_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
+	  /* DMA2_Stream4_IRQn interrupt configuration */
+	  HAL_NVIC_SetPriority(DMA2_Stream4_IRQn, 0, 0);
+	  HAL_NVIC_EnableIRQ(DMA2_Stream4_IRQn);
 
 }
 
@@ -510,8 +510,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_10, GPIO_PIN_RESET);
+  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4/*GPIO_PIN_8|GPIO_PIN_10*/, GPIO_PIN_RESET);
 
+#if 0
   /*Configure GPIO pin : PD13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -530,13 +531,47 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#endif
 
-  /*Configure GPIO pins : PA8 PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  // Knobs 0-3
+    // Pedal 4
+  /*
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4;//|GPIO_PIN_8|GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  */
+
+  /*Configure GPIO pins : PA adc inputs */
+GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+GPIO_InitStruct.Pull = GPIO_NOPULL;
+HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  // SWITCH pins
+  //pa9,pc9,pc7,pd13
+  GPIO_InitStruct.Pin = GPIO_PIN_9;//|GPIO_PIN_8|GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_9;//|GPIO_PIN_8|GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_13;//|GPIO_PIN_8|GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    //LED PD11
+    GPIO_InitStruct.Pin = GPIO_PIN_11;//|GPIO_PIN_8|GPIO_PIN_10;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_MEDIUM;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
 
 }
 
@@ -561,6 +596,11 @@ void Error_Handler(void)
 
   }
   /* USER CODE END Error_Handler */ 
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
+{
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
 }
 
 #ifdef USE_FULL_ASSERT

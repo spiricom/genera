@@ -14,6 +14,9 @@ tMPoly* poly;
 tCycle* osc[NUM_VOICES];
 tADSR* env[NUM_VOICES];
 
+
+uint16_t knobs[4];
+
 #define AUDIO_FRAME_SIZE      512
 #define HALF_BUFFER_SIZE      AUDIO_FRAME_SIZE * 2 //number of samples per half of the "double-buffer" (twice the audio frame size because there are interleaved samples for both left and right channels)
 #define AUDIO_BUFFER_SIZE     AUDIO_FRAME_SIZE * 4 //number of samples in the whole data structure (four times the audio frame size because of stereo and also double-buffering/ping-ponging)
@@ -92,6 +95,21 @@ void audioFrame(uint16_t buffer_offset)
 		audioError(); // this means it didn't finish the last round before it got interrupted again
 	}
 	audioBusy = 1;
+
+
+	knobs[0] = adcVals[0];
+	knobs[1] = adcVals[1];
+	knobs[2] = adcVals[2];
+	knobs[3] = adcVals[4];
+
+	for (int i = 0; i < NUM_VOICES; i++)
+	{
+		tADSRSetAttack(env[i], knobs[0]);
+		tADSRSetDecay(env[i], knobs[1]);
+		tADSRSetSustain(env[i], knobs[2] * INV_TWO_TO_12);
+		tADSRSetRelease(env[i], knobs[3]);
+	}
+
 
 	/*
 	if ((!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13)) && (gateIn == 0))
