@@ -1,0 +1,5 @@
+SystemWorkbench.userParallelBuildNbJobs=3
+SystemWorkbench.userParallelBuildNbJobsEnable=false
+SystemWorkbench.userParallelBuildOptimalEnable=true
+SystemWorkbench.userParallelBuildUlimitedEnable=false
+eclipse.preferences.version=1
