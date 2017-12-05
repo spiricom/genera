@@ -10,7 +10,9 @@
 #include "MIDI_application.h"
 
 
-tTalkbox* tb;
+tMPoly* poly;
+tCycle* osc[NUM_VOICES];
+tADSR* env[NUM_VOICES];
 
 #define AUDIO_FRAME_SIZE      512
 #define HALF_BUFFER_SIZE      AUDIO_FRAME_SIZE * 2 //number of samples per half of the "double-buffer" (twice the audio frame size because there are interleaved samples for both left and right channels)
@@ -24,6 +26,9 @@ uint64_t ADCfilterMemory[4] = {0,0,0,0};
 uint16_t ADCfilteredValue = 0;
 
 uint16_t* adcVals;
+
+
+float gainPerVoice = 1.0f / NUM_VOICES;
 
 float audioTickL(float audioIn);
 float audioTickR(float audioIn);
@@ -42,8 +47,6 @@ float randomNumber(void) {
 	
 }
 
-tCycle* sine;
-
 void audioInit(I2C_HandleTypeDef* hi2c, SAI_HandleTypeDef* hsaiIn, SAI_HandleTypeDef* hsaiOut, RNG_HandleTypeDef* hrand, uint16_t* myADCarray)
 { 
 	// Initialize the audio library. OOPS.
@@ -59,10 +62,15 @@ void audioInit(I2C_HandleTypeDef* hi2c, SAI_HandleTypeDef* hsaiIn, SAI_HandleTyp
 	HAL_SAI_Transmit_DMA(hsaiIn, (uint8_t *)&audioOutBuffer[0], AUDIO_BUFFER_SIZE);
 	HAL_SAI_Receive_DMA(hsaiOut, (uint8_t *)&audioInBuffer[0], AUDIO_BUFFER_SIZE);
 	
-	tb = tTalkboxInit();
+
+	poly = tMPoly_init();
 	
-	sine = tCycleInit();
-	tCycleSetFreq(sine, 220.0f);
+	for (int i = 0; i < NUM_VOICES; i++)
+	{
+		osc[i] = tCycleInit();
+		env[i] = tADSRInit(20, 250, 0.5f, 500);
+	}
+
 }
 
 static int ij;
@@ -111,6 +119,7 @@ void audioFrame(uint16_t buffer_offset)
 	
 	ADCfilteredValue = (uint16_t)((ADCfilterMemory[0] + ADCfilterMemory[0] + ADCfilterMemory[0] + ADCfilterMemory[0]) / 4);
 	*/
+
 	for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
 	{
 		if ((ij & 1) == 0) 
@@ -121,7 +130,7 @@ void audioFrame(uint16_t buffer_offset)
 		else 
 		{
 			//Right channel input and output
-			current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			//current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
 		}
 		//fill the buffer with the new sample that has just been calculated
 		audioOutBuffer[buffer_offset + ij] = current_sample;
@@ -130,42 +139,25 @@ void audioFrame(uint16_t buffer_offset)
 	audioBusy = 0;
 }
 
+
+
 float audioTickL(float audioIn)
 {
+	float sample = 0.0f;
 
-	//float sample = tTalkboxTick(tb, rightIn, audioIn);
-	
-	float sample = tCycleTick(sine) * 0.1f;
+	for (int i = 0; i < NUM_VOICES; i++)
+	{
+		sample += tADSRTick(env[i]) * tCycleTick(osc[i]);
+	}
+
+	sample *= gainPerVoice;
 
 	return sample;
 }
 
 
-	/*
-	//sample = tCompressorTick(comp, sample);
-	if (sample > 1.0f)
-	{
-		sample = 1.0f;
-		audioClippedMain();
-	}
-	else if (sample < -1.0f)
-	{
-		sample = -1.0f;
-		audioClippedMain(); 
-	}
-	*/
-	//sample = 0.0f;
-	//tCycleSetFreq(sine[0], ((4095-adcVals[0]) + (audioIn * (4095-adcVals[4])))); //add together knob value and FM from audio input multiplied by another knob value
-	
-
 float audioTickR(float audioIn)
 {
-	
-	float sample = 0;
-	rightIn = audioIn;
-	//tCycleSetFreq(sine[1], ((4095-adcVals[1]) + (audioIn * (4095-adcVals[5])))); //add together knob value and FM from audio input multiplied by another knob value
-	//sample = .95f * tCycleTick(sine[1]);
-	return sample;
 	
 }
 

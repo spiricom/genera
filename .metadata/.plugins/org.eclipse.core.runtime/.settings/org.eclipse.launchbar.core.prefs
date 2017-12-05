@@ -8,3 +8,4 @@ org.eclipse.launchbar.core.descriptorType.default\:genera.elf/activeLaunchMode=d
 org.eclipse.launchbar.core.descriptorType.default\:genera_2\ Run/activeLaunchMode=debug
 org.eclipse.launchbar.core.descriptorType.default\:genera_midi\ Run/activeLaunchMode=debug
 org.eclipse.launchbar.core.descriptorType.default\:genera_midi_2\ Run/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:genera_test\ Run/activeLaunchMode=run
