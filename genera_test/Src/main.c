@@ -72,6 +72,8 @@ DMA_HandleTypeDef hdma_sai1_b;
 
 SPI_HandleTypeDef hspi4;
 
+uint8_t mainMode = 0;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -89,7 +91,8 @@ static void MX_RNG_Init(void);
 static void MX_SAI1_Init(void);
 static void MX_SPI4_Init(void);
 void MX_USB_HOST_Process(void);
-
+void Check_rotary_switch(void);
+void lightLED(int onOff);
 #define NUM_ADC_CHANNELS 5
 
 __IO uint16_t adcValues[NUM_ADC_CHANNELS];
@@ -133,12 +136,50 @@ int main(void)
   {
   /* USER CODE END WHILE */
     MX_USB_HOST_Process();
-
+    Check_rotary_switch();
   /* USER CODE BEGIN 3 */
 
   }
   /* USER CODE END 3 */
 
+}
+
+void Check_rotary_switch()
+{
+	//pa9,pc9,pc7,pd13
+
+	if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_9) == 0)
+	{
+		mainMode = 1;
+		lightLED(0);
+	}
+	else if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == 0)
+	{
+		mainMode = 2;
+		lightLED(0);
+	}
+	else if (HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_13) == 0)
+	{
+		mainMode = 3;
+		lightLED(1);
+	}
+	else
+	{
+		mainMode = 0;
+		lightLED(0);
+	}
+}
+
+void lightLED(int onOff)
+{
+	if (onOff)
+	{
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
+	}
 }
 
 /** System Clock Configuration
@@ -275,16 +316,14 @@ static void MX_ADC1_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = 4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
-
-
-  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -507,7 +546,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_RESET);
+  //HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4/*GPIO_PIN_8|GPIO_PIN_10*/, GPIO_PIN_RESET);
@@ -543,10 +582,7 @@ static void MX_GPIO_Init(void)
   */
 
   /*Configure GPIO pins : PA adc inputs */
-GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
-GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-GPIO_InitStruct.Pull = GPIO_NOPULL;
-HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  //removed this because the adc pins are defined in stm32f7xx_hal_msp.c  - JS 12/18/17
 
   // SWITCH pins
   //pa9,pc9,pc7,pd13

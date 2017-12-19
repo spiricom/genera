@@ -153,7 +153,7 @@ void audioFrame(uint16_t buffer_offset)
 		//fill the buffer with the new sample that has just been calculated
 		audioOutBuffer[buffer_offset + ij] = current_sample;
 	}
-	
+
 	audioBusy = 0;
 }
 
@@ -167,8 +167,9 @@ float audioTickL(float audioIn)
 	{
 		sample += tADSRTick(env[i]) * tCycleTick(osc[i]);
 	}
-
 	sample *= gainPerVoice;
+	//tCycleSetFreq(osc[0],440.0f);
+	//sample = tCycleTick(osc[0]);
 
 	return sample;
 }
@@ -181,17 +182,17 @@ float audioTickR(float audioIn)
 
 void audioError(void)
 {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);//green
+		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);//green
 }
 
 void audioClipped(void)
 {
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);//red
+		//HAL_GPIO_WritePin(GPIOC, GPIO_PIN_9, GPIO_PIN_SET);//red
 }
 
 void audioClippedMain(void)
 {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET); //blue
+		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET); //blue
 }
 
 
