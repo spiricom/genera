@@ -29,7 +29,8 @@ uint16_t* adcVals;
 
 float gainPerVoice = 1.0f / NUM_VOICES;
 
-float audioTickL(float audioIn);
+float audioTickVocoder(float audioIn);
+float audioTickDry(float audioIn);
 float audioTickR(float audioIn);
 float randomNumber(void);
 void audioFrame(uint16_t buffer_offset); // the function that gets called every audio frame
@@ -90,32 +91,63 @@ void audioFrame(uint16_t buffer_offset)
 	knobs[2] = adcVals[2];
 	knobs[3] = adcVals[4];
 	
-	for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
+	if (mainMode == 1)
 	{
-		if ((ij & 1) == 0) 
+		for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
 		{
-			//Left channel input and output
-			current_sample = (int16_t)(audioTickL((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
-		} 
-		else 
-		{
-			//Right channel input and output
-			current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			if ((ij & 1) == 0)
+			{
+				//Left channel input and output
+				current_sample = (int16_t)(audioTickVocoder((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			}
+			else
+			{
+				//Right channel input and output
+				current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			}
+			//fill the buffer with the new sample that has just been calculated
+			audioOutBuffer[buffer_offset + ij] = current_sample;
 		}
-		//fill the buffer with the new sample that has just been calculated
-		audioOutBuffer[buffer_offset + ij] = current_sample;
 	}
+	else
+	{
+		for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
+		{
+			if ((ij & 1) == 0)
+			{
+				//Left channel input and output
+				current_sample = (int16_t)(audioTickDry((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			}
+			else
+			{
+				//Right channel input and output
+				current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			}
+			//fill the buffer with the new sample that has just been calculated
+			audioOutBuffer[buffer_offset + ij] = current_sample;
+		}
+	}
+
 
 	audioBusy = 0;
 }
 
 
 
-float audioTickL(float audioIn)
+float audioTickVocoder(float audioIn)
 {
 	float sample = 0.0f;
 
 	sample = tTalkboxTick(tb, rightIn, audioIn);
+
+	return sample;
+}
+
+float audioTickDry(float audioIn)
+{
+	float sample = 0.0f;
+
+	sample = audioIn;
 
 	return sample;
 }
