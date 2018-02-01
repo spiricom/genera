@@ -82,29 +82,10 @@ void ProcessReceivedMidiDatas(void)
 					key = pack.evnt1;
 					velocity = pack.evnt2;
 
-					tMPoly_noteOff(poly, key);
-					tADSROff(env[poly->lastVoiceToChange]);
-			
 					break;
 				case (0x90): // Note On
 					key = pack.evnt1;
 					velocity = pack.evnt2;
-
-					if (!velocity)
-					{
-						tMPoly_noteOff(poly, key);
-						tADSROff(env[poly->lastVoiceToChange]);
-					}
-					else
-					{
-						tMPoly_noteOn(poly, key, velocity);
-						tADSROn(env[poly->lastVoiceToChange], (float) (velocity * INV_TWO_TO_7));
-
-						for (int i = 0; i < NUM_VOICES; i++)
-						{
-							tCycleSetFreq(osc[i], OOPS_midiToFrequency(poly->voices[i][0]));
-						}
-					}
 
 					break;
 				case (0xA0):

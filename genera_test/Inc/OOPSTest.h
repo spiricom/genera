@@ -12,10 +12,6 @@
 
 #define INV_TWO_TO_7 0.00787401574f
 
-extern tMPoly* poly;
-
-extern tCycle* osc[NUM_VOICES];
-
-extern tADSR* env[NUM_VOICES];
+extern tTalkbox* tb;
 
 

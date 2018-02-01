@@ -8,12 +8,14 @@
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="MX_"/>
+			<item value="_error_handler"/>
+			<item value="tcycle"/>
 			<item value="PIN"/>
 			<item value="GPIO_PIN"/>
 			<item value="mx_sai"/>
 			<item value="sai"/>
 			<item value="mx_dma"/>
-			<item value="ProcessReceivedMidiDatas"/>
 		</list>
 		<list key="replacehistory">
 		</list>

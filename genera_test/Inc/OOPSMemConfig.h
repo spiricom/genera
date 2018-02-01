@@ -38,11 +38,11 @@ extern const float shaper1[SHAPER1_TABLE_SIZE];
 #define     N_STIFKARP          0
 #define     N_NEURON            0
 #define     N_PHASOR            0
-#define     N_CYCLE             10
+#define     N_CYCLE             0
 #define     N_SAWTOOTH          0
 #define     N_TRIANGLE          0
 #define     N_SQUARE            0
-#define     N_NOISE             1 + (1 * N_STIFKARP) + (1 * N_PLUCK) // StifKarp and Pluck each contain 1 Noise component.
+#define     N_NOISE             0 + (1 * N_STIFKARP) + (1 * N_PLUCK) // StifKarp and Pluck each contain 1 Noise component.
 #define     N_ONEPOLE           0 + (1 * N_PLUCK)
 #define     N_TWOPOLE           0
 #define     N_ONEZERO           0 + (1 * N_STIFKARP) + (1 * N_PLUCK) + (1 * N_NEURON)
@@ -50,18 +50,18 @@ extern const float shaper1[SHAPER1_TABLE_SIZE];
 #define     N_TWOZERO           0
 #define     N_POLEZERO          0 + (1 * N_NEURON)
 #define     N_BIQUAD            0 + (4 * N_STIFKARP)
-#define     N_SVF               1 + 32*N_BUTTERWORTH
+#define     N_SVF               0 + 32*N_BUTTERWORTH
 #define     N_SVFE              0
 #define     N_HIGHPASS          0
 #define     N_DELAY             0 + (14 * N_NREV) + (3 * N_PRCREV)
 #define     N_DELAYL            0 + (1 * N_STIFKARP) + (1 * N_PLUCK)
 #define     N_DELAYA            0 + (1 * N_PRCREV) + (1 * N_STIFKARP)
 #define     N_ENVELOPE          0
-#define     N_ADSR              10
+#define     N_ADSR              0
 #define     N_RAMP              0
 #define     N_ENVELOPEFOLLOW    0
 #define     N_VOCODER           0
-#define     N_TALKBOX           0
+#define     N_TALKBOX           1
 #define     N_POLY              0
 #define     N_STACK             2
 #define     N_MPOLY             1

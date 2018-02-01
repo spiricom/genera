@@ -122,7 +122,7 @@ int main(void)
   MX_RNG_Init();
   MX_SAI1_Init();
   MX_SPI4_Init();
-  MX_USB_HOST_Init();
+  //MX_USB_HOST_Init();
 	
 	if (HAL_ADC_Start_DMA(&hadc1,(uint32_t*)&adcValues, NUM_ADC_CHANNELS) != HAL_OK)
 	{
@@ -135,7 +135,7 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-    MX_USB_HOST_Process();
+    //MX_USB_HOST_Process();
     Check_rotary_switch();
   /* USER CODE BEGIN 3 */
 

@@ -33,6 +33,7 @@ tTalkbox* tTalkboxInit()
 {
     tTalkbox* v = &oops.tTalkboxRegistry[oops.registryIndex[T_TALKBOX]++];
 
+
     v->param[0] = 0.5f;  //wet
     v->param[1] = 0.0f;  //dry
     v->param[2] = 0; // Swap

@@ -9,15 +9,11 @@
 #include "usbh_MIDI.h"
 #include "MIDI_application.h"
 
-
-tMPoly* poly;
-tCycle* osc[NUM_VOICES];
-tADSR* env[NUM_VOICES];
-
+tTalkbox* tb;
 
 uint16_t knobs[4];
 
-#define AUDIO_FRAME_SIZE      512
+#define AUDIO_FRAME_SIZE      180
 #define HALF_BUFFER_SIZE      AUDIO_FRAME_SIZE * 2 //number of samples per half of the "double-buffer" (twice the audio frame size because there are interleaved samples for both left and right channels)
 #define AUDIO_BUFFER_SIZE     AUDIO_FRAME_SIZE * 4 //number of samples in the whole data structure (four times the audio frame size because of stereo and also double-buffering/ping-ponging)
 
@@ -64,15 +60,8 @@ void audioInit(I2C_HandleTypeDef* hi2c, SAI_HandleTypeDef* hsaiIn, SAI_HandleTyp
 	// set up the I2S driver to send audio data to the codec (and retrieve input as well)	
 	HAL_SAI_Transmit_DMA(hsaiIn, (uint8_t *)&audioOutBuffer[0], AUDIO_BUFFER_SIZE);
 	HAL_SAI_Receive_DMA(hsaiOut, (uint8_t *)&audioInBuffer[0], AUDIO_BUFFER_SIZE);
-	
 
-	poly = tMPoly_init();
-	
-	for (int i = 0; i < NUM_VOICES; i++)
-	{
-		osc[i] = tCycleInit();
-		env[i] = tADSRInit(20, 250, 0.5f, 500);
-	}
+	tb = tTalkboxInit();
 
 }
 
@@ -84,7 +73,6 @@ static int gateIn = 0;
 static int onsetFlag = 0;
 
 float rightIn = 0.0f;
-
 
 void audioFrame(uint16_t buffer_offset)
 {
@@ -101,43 +89,7 @@ void audioFrame(uint16_t buffer_offset)
 	knobs[1] = adcVals[1];
 	knobs[2] = adcVals[2];
 	knobs[3] = adcVals[4];
-
-	for (int i = 0; i < NUM_VOICES; i++)
-	{
-		tADSRSetAttack(env[i], knobs[0]);
-		tADSRSetDecay(env[i], knobs[1]);
-		tADSRSetSustain(env[i], knobs[2] * INV_TWO_TO_12);
-		tADSRSetRelease(env[i], knobs[3]);
-	}
-
-
-	/*
-	if ((!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13)) && (gateIn == 0))
-	{
-		onsetFlag = 1;
-		gateIn = 1;
-	}
-	else if ((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_13)) && (gateIn == 1))
-	{
-		gateIn = 0;
-	}
-	if (onsetFlag)
-	{
-		onsetFlag = 0;
-	}
 	
-	getSPIdata();
-	ADCfilterMemory[0] = ADC16Value;
-	getSPIdata();
-	ADCfilterMemory[1] = ADC16Value;
-	getSPIdata();
-	ADCfilterMemory[2] = ADC16Value;
-	getSPIdata();
-	ADCfilterMemory[3] = ADC16Value;
-	
-	ADCfilteredValue = (uint16_t)((ADCfilterMemory[0] + ADCfilterMemory[0] + ADCfilterMemory[0] + ADCfilterMemory[0]) / 4);
-	*/
-
 	for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
 	{
 		if ((ij & 1) == 0) 
@@ -148,7 +100,7 @@ void audioFrame(uint16_t buffer_offset)
 		else 
 		{
 			//Right channel input and output
-			//current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
+			current_sample = (int16_t)(audioTickR((float) (audioInBuffer[buffer_offset + ij] * INV_TWO_TO_15)) * TWO_TO_15);
 		}
 		//fill the buffer with the new sample that has just been calculated
 		audioOutBuffer[buffer_offset + ij] = current_sample;
@@ -163,13 +115,7 @@ float audioTickL(float audioIn)
 {
 	float sample = 0.0f;
 
-	for (int i = 0; i < NUM_VOICES; i++)
-	{
-		sample += tADSRTick(env[i]) * tCycleTick(osc[i]);
-	}
-	sample *= gainPerVoice;
-	//tCycleSetFreq(osc[0],440.0f);
-	//sample = tCycleTick(osc[0]);
+	sample = tTalkboxTick(tb, rightIn, audioIn);
 
 	return sample;
 }
@@ -177,7 +123,7 @@ float audioTickL(float audioIn)
 
 float audioTickR(float audioIn)
 {
-	
+	rightIn = audioIn;
 }
 
 void audioError(void)
