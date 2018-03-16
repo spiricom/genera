@@ -12,6 +12,8 @@
 
 #define INV_TWO_TO_7 0.00787401574f
 
+extern int sustain;
+
 extern tMPoly* poly;
 
 extern tSawtooth* osc[NUM_VOICES];

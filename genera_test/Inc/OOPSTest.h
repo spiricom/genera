@@ -12,6 +12,8 @@
 
 #define INV_TWO_TO_7 0.00787401574f
 
+extern I2C_HandleTypeDef hi2c2;
+
 extern uint8_t mainMode;
 
 extern tTalkbox* tb;

@@ -96,6 +96,8 @@ void        tMPoly_orderedAddToStack(tMPoly* const, uint8_t noteVal);
 
 void        tMPoly_pitchBend(tMPoly* const, uint8_t bend);
 
+int 		tMPoly_getVoiceWithNote(tMPoly* const, int note);
+
 
 
 

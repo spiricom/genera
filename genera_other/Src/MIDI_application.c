@@ -57,6 +57,9 @@ void MIDI_Application(void)
 	}
 }
 #define TRANSPOSE -12
+
+int notes[128];
+int sustained[128];
 /*-----------------------------------------------------------------------------*/
 void ProcessReceivedMidiDatas(void)
 {
@@ -82,10 +85,14 @@ void ProcessReceivedMidiDatas(void)
 					key = pack.evnt1;
 					velocity = pack.evnt2;
 
+					if (sustain == 0)
+					{
+						tMPoly_noteOff(poly, key + TRANSPOSE);
+						tADSROff(env[poly->lastVoiceToChange]);
+						sustained[key] = 0;
+					}
 
-					tMPoly_noteOff(poly, key + TRANSPOSE);
-					tADSROff(env[poly->lastVoiceToChange]);
-
+					notes[key] = 0;
 			
 					break;
 				case (0x90): // Note On
@@ -94,16 +101,26 @@ void ProcessReceivedMidiDatas(void)
 
 					if (!velocity)
 					{
+						if (sustain == 0)
+						{
+							tMPoly_noteOff(poly, key + TRANSPOSE);
+							tADSROff(env[poly->lastVoiceToChange]);
+						}
 
-						tMPoly_noteOff(poly, key + TRANSPOSE);
-						tADSROff(env[poly->lastVoiceToChange]);
-
+						notes[key] = 0;
 					}
 					else
 					{
-
 						tMPoly_noteOn(poly, key + TRANSPOSE, velocity);
-						tADSROn(env[poly->lastVoiceToChange], (float) (velocity * INV_TWO_TO_7));
+
+						int voice = tMPoly_getVoiceWithNote(poly, key+TRANSPOSE);
+
+						tADSROn(env[(voice >= 0) ? voice : poly->lastVoiceToChange],
+								(float) (velocity * INV_TWO_TO_7));
+
+						if (sustain == 1) sustained[key] = 1;
+
+						notes[key] = 1;
 
 						for (int i = 0; i < NUM_VOICES; i++)
 						{
@@ -166,6 +183,26 @@ void ProcessReceivedMidiDatas(void)
 						case (0x14): 
 							break;
 						case (64): // sustain
+							if (data > 0)
+							{
+								sustain = 1;
+
+								for (int i = 0; i < 128; i++)  sustained[i] = notes[i];
+							}
+							else
+							{
+								sustain = 0;
+
+								for (int i = 0; i < 128; i++)
+								{
+									if ((sustained[i]) == 1 && (notes[i] == 0))
+									{
+										tMPoly_noteOff(poly, i + TRANSPOSE);
+										tADSROff(env[poly->lastVoiceToChange]);
+									}
+									sustained[i] = 0;
+								}
+							}
 							break;
 					}
 					HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_0); //blink LED

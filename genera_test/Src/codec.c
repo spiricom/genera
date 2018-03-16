@@ -4,7 +4,7 @@ uint16_t i2cDataSize = 2;
 uint8_t myI2cData[2] = {0,0};
 uint32_t I2Ctimeout = 2000;
 
-void AudioCodec_init(I2C_HandleTypeDef* hi2c) {
+void AudioCodec_init(I2C_HandleTypeDef* hi2c, uint8_t wetOrDry) {
 
 	// compared to the datasheet for the WM8731 codec, all of the register numbers are left-shifted by one (to take into account the read/write bit in I2C)
 	
@@ -54,7 +54,16 @@ void AudioCodec_init(I2C_HandleTypeDef* hi2c) {
  
   //analog audio path configuration
 	myI2cData[0] = 0x08;
-  myI2cData[1] = ((uint8_t)((SIDEATT << 6)|(SIDETONE << 5)|(DACSEL << 4)|(BYPASS << 3)|(INSEL << 2)|(MUTEMIC << 1)|(MICBOOST << 0)));
+
+	if (wetOrDry == 1)
+	{
+		myI2cData[1] = ((uint8_t)((SIDEATT << 6)|(SIDETONE << 5)|(DACSEL << 4)|(0 << 3)|(INSEL << 2)|(MUTEMIC << 1)|(MICBOOST << 0)));
+	}
+	else
+	{
+		myI2cData[1] = ((uint8_t)((SIDEATT << 6)|(SIDETONE << 5)|(DACSEL << 4)|(1 << 3)|(INSEL << 2)|(MUTEMIC << 1)|(MICBOOST << 0)));
+	}
+
 	HAL_I2C_Master_Transmit(hi2c, CODEC_I2C_ADDRESS, myI2cData, i2cDataSize, I2Ctimeout);
 	
 	//clock configuration

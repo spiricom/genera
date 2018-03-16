@@ -11,7 +11,10 @@
 
 tMPoly* poly;
 tSawtooth* osc[NUM_VOICES];
+tCycle* test;
 tADSR* env[NUM_VOICES];
+
+int sustain;
 
 uint16_t knobs[4];
 
@@ -65,14 +68,17 @@ void audioInit(I2C_HandleTypeDef* hi2c, SAI_HandleTypeDef* hsaiIn, SAI_HandleTyp
 
 	poly = tMPoly_init();
 
+	sustain = 0;
+
 	for (int i = 0; i < NUM_VOICES; i++)
 	{
 		osc[i] = tSawtoothInit();
-		env[i] = tADSRInit(8, 0, 1.0f, 8);
+		env[i] = tADSRInit(8, 200, 0.5f, 8);
 	}
 
 
-
+	test = tCycleInit();
+	tCycleSetFreq(test, 220.0f);
 
 }
 
@@ -164,16 +170,14 @@ float audioTickL(float audioIn)
 {
 	float sample = 0.0f;
 
+	/*
 	for (int i = 0; i < NUM_VOICES; i++)
 	{
 		sample += tADSRTick(env[i]) * tSawtoothTick(osc[i]);
 	}
 	sample *= gainPerVoice;
-
-	//tCycleSetFreq(osc[0],440.0f);
-	//sample = tCycleTick(osc[0]);
-
-	//sample = tSawtoothTick(osc[0]);
+*/
+	sample = tCycleTick(test);
 
 	return sample;
 }

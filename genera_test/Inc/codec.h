@@ -2,7 +2,7 @@
 
 #define CODEC_I2C_ADDRESS (0x1a << 1) // 7-bit address goes one bit over to the left to make room for R/W bit
 
-void AudioCodec_init(I2C_HandleTypeDef* hi2c);
+void AudioCodec_init(I2C_HandleTypeDef* hi2c, uint8_t wetOrDry);
 
 #ifndef ADCHPD
   #define ADCHPD 0

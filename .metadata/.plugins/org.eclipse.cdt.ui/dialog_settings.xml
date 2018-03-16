@@ -6,6 +6,7 @@
 		<item value="false" key="caseSensitive"/>
 		<item value="227191" key="searchFlags"/>
 		<list key="previousPatterns">
+			<item value="extern"/>
 			<item value="_error_handler"/>
 			<item value="error_handler"/>
 		</list>

@@ -1060,6 +1060,19 @@ void tMPoly_pitchBend(tMPoly* poly, uint8_t pitchBend)
 
 }
 
+int tMPoly_getVoiceWithNote(tMPoly* poly, int note)
+{
+	for (int i = 0; i < poly->numVoices; i++)
+	{
+		if (poly->voices[i][0] == note)    // if inactive voice, give this note to voice
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
 int tMPoly_noteOn(tMPoly* poly, int note, uint8_t vel)
 {
     // if not in keymap or already on stack, dont do anything. else, add that note.

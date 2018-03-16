@@ -47,23 +47,36 @@ float randomNumber(void) {
 	
 }
 
+#define DRY 0
+#define WET 1
+
 void audioInit(I2C_HandleTypeDef* hi2c, SAI_HandleTypeDef* hsaiIn, SAI_HandleTypeDef* hsaiOut, RNG_HandleTypeDef* hrand, uint16_t* myADCarray)
 { 
 	// Initialize the audio library. OOPS.
 	OOPSInit(SAMPLE_RATE, &randomNumber);
 	
 	//now to send all the necessary messages to the codec
-	AudioCodec_init(hi2c);
-	
+	AudioCodec_init(hi2c, DRY);
+
 	//set the ADC input array to point to where the ADC stores its data
 	adcVals = myADCarray;
-	
-	// set up the I2S driver to send audio data to the codec (and retrieve input as well)	
+
+	// set up the I2S driver to send audio data to the codec (and retrieve input as well)
 	HAL_SAI_Transmit_DMA(hsaiIn, (uint8_t *)&audioOutBuffer[0], AUDIO_BUFFER_SIZE);
 	HAL_SAI_Receive_DMA(hsaiOut, (uint8_t *)&audioInBuffer[0], AUDIO_BUFFER_SIZE);
 
 	tb = tTalkboxInit();
 
+}
+
+void audioUpdate(I2C_HandleTypeDef* hi2c, /*SAI_HandleTypeDef* hsaiIn, SAI_HandleTypeDef* hsaiOut, */ uint8_t wetOrDry)
+{
+	//now to send all the necessary messages to the codec
+	AudioCodec_init(hi2c, wetOrDry);
+	
+	// set up the I2S driver to send audio data to the codec (and retrieve input as well)	
+	//HAL_SAI_Transmit_DMA(hsaiIn, (uint8_t *)&audioOutBuffer[0], AUDIO_BUFFER_SIZE);
+	//HAL_SAI_Receive_DMA(hsaiOut, (uint8_t *)&audioInBuffer[0], AUDIO_BUFFER_SIZE);
 }
 
 static int ij;
@@ -74,6 +87,10 @@ static int gateIn = 0;
 static int onsetFlag = 0;
 
 float rightIn = 0.0f;
+
+uint8_t mainModePrev = 0;
+
+
 
 void audioFrame(uint16_t buffer_offset)
 {
@@ -91,6 +108,12 @@ void audioFrame(uint16_t buffer_offset)
 	knobs[2] = adcVals[2];
 	knobs[3] = adcVals[4];
 	
+	if (mainMode != mainModePrev)
+	{
+		audioUpdate(&hi2c2, (mainMode == 1) ? WET : DRY); //&hsai_BlockA1, &hsai_BlockB1,
+		mainModePrev = mainMode;
+	}
+
 	if (mainMode == 1)
 	{
 		for (ij = 0; ij < (HALF_BUFFER_SIZE); ij++)
@@ -128,7 +151,6 @@ void audioFrame(uint16_t buffer_offset)
 		}
 	}
 
-
 	audioBusy = 0;
 }
 
@@ -145,11 +167,7 @@ float audioTickVocoder(float audioIn)
 
 float audioTickDry(float audioIn)
 {
-	float sample = 0.0f;
-
-	sample = audioIn;
-
-	return sample;
+	return 0.0f;
 }
 
 
